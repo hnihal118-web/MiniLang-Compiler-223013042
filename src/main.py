@@ -1,50 +1,71 @@
-import sys
-
 from lexer import Lexer
 from parser import Parser
 from semantic import SemanticAnalyzer
 from tac import TACGenerator
 from optimizer import Optimizer
-from backend import StackBackend
-from interpreter import StackInterpreter
+from backend import Backend
 
 
-def compile_and_run(source):
-    # 1. Lexical analysis
-    lexer = Lexer(source)
+def compile_program(source_code):
+
+    # Step 1: Lexical Analysis
+    lexer = Lexer(source_code)
     tokens = lexer.tokenize()
 
-    # 2. Parsing
+    print("=== TOKENS ===")
+    for token in tokens:
+        print(token)
+
+    # Step 2: Parsing
     parser = Parser(tokens)
     ast = parser.parse()
 
-    # 3. Semantic analysis
-    analyzer = SemanticAnalyzer()
-    analyzer.analyze(ast)
+    print("\n=== AST CREATED ===")
 
-    # 4. TAC generation
-    generator = TACGenerator()
-    tac = generator.generate(ast)
+    # Step 3: Semantic Analysis
+    semantic = SemanticAnalyzer()
+    semantic.analyze(ast)
 
-    # 5. Optimization
+    print("Semantic analysis successful")
+
+    # Step 4: TAC Generation
+    tac_generator = TACGenerator()
+
+    tac = tac_generator.generate(ast)
+
+    print("\n=== TAC ===")
+
+    for instruction in tac:
+        print(instruction)
+
+    # Step 5: Optimization
     optimizer = Optimizer()
+
     optimized = optimizer.optimize(tac)
 
-    # 6. Backend
-    backend = StackBackend()
-    machine_code = backend.generate(optimized)
+    print("\n=== OPTIMIZED TAC ===")
 
-    # 7. Execution
-    interpreter = StackInterpreter()
-    return interpreter.run(machine_code)
+    for instruction in optimized:
+        print(instruction)
+
+    # Step 6: Backend Execution
+    backend = Backend()
+
+    result = backend.run(optimized)
+
+    print("\n=== VARIABLES ===")
+    print(result)
+
+    return result
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python src/main.py <source-file>")
-        sys.exit(1)
 
-    with open(sys.argv[1], "r", encoding="utf-8") as file:
-        source = file.read()
+    example = """
 
-    compile_and_run(source)
+    purno2 x = 10;
+    purno2 y = 20;
+
+    """
+
+    compile_program(example)
